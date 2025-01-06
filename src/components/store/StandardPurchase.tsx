@@ -47,12 +47,12 @@ export function StandardPurchase() {
 
   return (
     <div className="h-full bg-white rounded-2xl shadow-lg flex flex-col">
-      <div className="p-6">
-        <h3 className="text-xl md:text-2xl font-bold text-purple-900 text-center mb-6">
+      <div className="p-6 space-y-4">
+        <h3 className="text-xl md:text-2xl font-bold text-purple-900 text-center">
           רכישה רגילה
         </h3>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {bundles.map((bundle) => (
             <button
               key={bundle.id}
@@ -87,16 +87,14 @@ export function StandardPurchase() {
           ))}
         </div>
 
-        <div className="space-y-3 mt-6">
+        <div className="space-y-2">
           <Feature text="כריכה קשה יוקרתית" />
           <Feature text="חוברת צביעה דיגיטלית במתנה" />
           <Feature text="חוברת פעילויות במתנה" />
           <Feature text="הקדשה אישית" />
           <Feature text="משלוח חינם" />
         </div>
-      </div>
 
-      <div className="mt-auto p-6">
         <button
           onClick={handlePurchase}
           disabled={!selectedBundle || isProcessing}
@@ -116,7 +114,7 @@ export function StandardPurchase() {
         </button>
 
         {error && (
-          <div className="mt-3 p-2 bg-red-50 text-red-700 rounded-lg text-sm text-center">
+          <div className="mt-2 p-2 bg-red-50 text-red-700 rounded-lg text-sm text-center">
             {error}
           </div>
         )}
