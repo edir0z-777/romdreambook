@@ -47,17 +47,17 @@ export function StandardPurchase() {
 
   return (
     <div className="h-full bg-white rounded-2xl shadow-lg flex flex-col">
-      <div className="p-6 space-y-4">
-        <h3 className="text-xl md:text-2xl font-bold text-purple-900 text-center">
+      <div className="p-4 md:p-6 space-y-3">
+        <h3 className="text-xl md:text-2xl font-bold text-purple-900 text-center mb-2">
           רכישה רגילה
         </h3>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {bundles.map((bundle) => (
             <button
               key={bundle.id}
               onClick={() => setSelectedBundle(bundle.id)}
-              className={`w-full p-4 rounded-xl border-2 transition-all text-right ${
+              className={`w-full p-3 md:p-4 rounded-xl border-2 transition-all text-right ${
                 selectedBundle === bundle.id 
                   ? 'border-purple-600 bg-purple-50' 
                   : 'border-purple-100 hover:border-purple-200'
@@ -87,7 +87,7 @@ export function StandardPurchase() {
           ))}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:space-y-2">
           <Feature text="כריכה קשה יוקרתית" />
           <Feature text="חוברת צביעה דיגיטלית במתנה" />
           <Feature text="חוברת פעילויות במתנה" />
@@ -98,7 +98,7 @@ export function StandardPurchase() {
         <button
           onClick={handlePurchase}
           disabled={!selectedBundle || isProcessing}
-          className="w-full h-[50px] flex items-center justify-center gap-2 bg-purple-600 text-white rounded-xl text-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50"
+          className="w-full h-[50px] flex items-center justify-center gap-2 bg-purple-600 text-white rounded-xl text-lg md:text-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50"
         >
           {isProcessing ? (
             <>
@@ -114,7 +114,7 @@ export function StandardPurchase() {
         </button>
 
         {error && (
-          <div className="mt-2 p-2 bg-red-50 text-red-700 rounded-lg text-sm text-center">
+          <div className="mt-2 p-2 bg-red-50 text-red-700 rounded-lg text-sm md:text-sm text-center">
             {error}
           </div>
         )}
