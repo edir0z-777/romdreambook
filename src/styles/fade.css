@@ -1,0 +1,23 @@
+.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+}
+
+/* Initial state */
+section:not(.fade-in):not(.fade-out) {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Ensure sections are visible by default until JS loads */
+section {
+  opacity: 1;
+  transform: translateY(0);
+}

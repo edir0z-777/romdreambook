@@ -1,0 +1,26 @@
+/* FbMasa Regular */
+@font-face {
+  font-family: 'FbMasa';
+  src: url('/fonts/FbMasa-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* FbMasa Bold */
+@font-face {
+  font-family: 'FbMasa';
+  src: url('/fonts/FbMasa-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* FbMasa Black */
+@font-face {
+  font-family: 'FbMasa';
+  src: url('/fonts/FbMasa-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}

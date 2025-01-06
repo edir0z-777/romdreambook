@@ -1,0 +1,217 @@
+%!Adobe-FontList 1.22
+%Locale:0x40d
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:FbDakar-Regular
+FamilyName:FbDakar
+StyleName:Regular
+FullName:FbDakar-Regular
+MenuName:FbDakar Regular
+StyleBits:0
+FamilyNameNative:FbDakar
+StyleNameNative:Regular
+FullNameNative:FbDakar Regular
+WritingScript:Hebrew
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\FbDakar-Regular.otf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:65624
+FileModTime:1231328090
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,FbDakar Regular
+NameArray:0,Win,1,FbDakar Regular
+NameArray:0,Win,16,FbDakar
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:FbMasa-Black
+FamilyName:FbMasa
+StyleName:Black
+FullName:FbMasa-Black
+MenuName:FbMasa Black
+StyleBits:0
+FamilyNameNative:FbMasa
+StyleNameNative:Black
+FullNameNative:FbMasa Black
+WritingScript:Hebrew
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\FbMasa-Black.otf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:64900
+FileModTime:1228642836
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,FbMasa Black
+NameArray:0,Win,1,FbMasa Black
+NameArray:0,Win,16,FbMasa
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:FbMasa-Bold
+FamilyName:FbMasa
+StyleName:Bold
+FullName:FbMasa-Bold
+MenuName:FbMasa Bold
+StyleBits:2
+FamilyNameNative:FbMasa
+StyleNameNative:Bold
+FullNameNative:FbMasa Bold
+WritingScript:Hebrew
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\FbMasa-Bold.otf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:64980
+FileModTime:1228642856
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,FbMasa Bold
+NameArray:0,Win,1,FbMasa Bold
+NameArray:0,Win,16,FbMasa
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:FbMasa-Regular
+FamilyName:FbMasa
+StyleName:Regular
+FullName:FbMasa-Regular
+MenuName:FbMasa Regular
+StyleBits:0
+FamilyNameNative:FbMasa
+StyleNameNative:Regular
+FullNameNative:FbMasa Regular
+WritingScript:Hebrew
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\FbMasa-Regular.otf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:64556
+FileModTime:1228642876
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,FbMasa Regular
+NameArray:0,Win,1,FbMasa Regular
+NameArray:0,Win,16,FbMasa
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:FbTypoPas-Regular
+FamilyName:FbTypoPas
+StyleName:Regular
+FullName:FbTypoPas-Regular
+MenuName:FbTypoPas Regular
+StyleBits:0
+FamilyNameNative:FbTypoPas
+StyleNameNative:Regular
+FullNameNative:FbTypoPas Regular
+WritingScript:Hebrew
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\FbTypoPas-Regular.otf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:61748
+FileModTime:1227197792
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,FbTypoPas Regular
+NameArray:0,Win,1,FbTypoPas Regular
+NameArray:0,Win,16,FbTypoPas
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MinionPro-Bold
+FamilyName:Minion Pro
+StyleName:Bold
+FullName:Minion Pro Bold
+MenuName:Minion Pro
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\MinionPro-Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:230912
+FileModTime:1265287634
+WeightClass:700
+WidthClass:5
+AngleClass:0
+DesignSize:110
+NameArray:0,Mac,4,Minion Pro Bold
+NameArray:0,Win,1,Minion Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MinionPro-Regular
+FamilyName:Minion Pro
+StyleName:Regular
+FullName:Minion Pro
+MenuName:Minion Pro
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\MinionPro-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:231312
+FileModTime:1265287634
+WeightClass:400
+WidthClass:5
+AngleClass:0
+DesignSize:110
+NameArray:0,Mac,4,Minion Pro
+NameArray:0,Win,1,Minion Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MyriadPro-Semibold
+FamilyName:Myriad Pro
+StyleName:Semibold
+FullName:Myriad Pro Semibold
+MenuName:Myriad Pro Light
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:C:\Users\rubin\Desktop\2020\ספרי ניב\ענת רוזנשטיין - 21-12-2020 Folder\ענת רוזנשטיין - עימוד 21-12-2020 Folder\Document fonts\MyriadPro-Semibold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:95616
+FileModTime:1265287634
+WeightClass:600
+WidthClass:5
+AngleClass:0
+DesignSize:110
+NameArray:0,Mac,4,Myriad Pro Semibold
+NameArray:0,Win,1,Myriad Pro Light
+NameArray:0,Win,16,Myriad Pro
+%EndFont
+
