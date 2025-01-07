@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Loader2 } from 'lucide-react';
-import { usePayment } from './usePayment';
+import { useNavigate } from 'react-router-dom';
 import { Feature } from './Feature';
 
 const bundles = [
@@ -30,19 +30,14 @@ const bundles = [
 
 export function StandardPurchase() {
   const [selectedBundle, setSelectedBundle] = useState<string | null>(null);
-  const { processPayment, isProcessing, error } = usePayment();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
   const handlePurchase = () => {
     if (!selectedBundle) return;
-    const bundle = bundles.find(b => b.id === selectedBundle);
-    if (!bundle) return;
-    processPayment({
-      variant: {
-        id: 'hardcover',
-        price: bundle.price,
-        quantity: bundle.quantity
-      }
-    });
+    setIsProcessing(true);
+    // Navigate to placeholder payment page
+    navigate(`/payment/${selectedBundle}`);
   };
 
   return (
@@ -112,12 +107,6 @@ export function StandardPurchase() {
             </>
           )}
         </button>
-
-        {error && (
-          <div className="mt-2 p-2 bg-red-50 text-red-700 rounded-lg text-sm md:text-sm text-center">
-            {error}
-          </div>
-        )}
       </div>
     </div>
   );
