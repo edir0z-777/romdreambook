@@ -1,44 +1,68 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Feature } from './Feature';
 
 const bundles = [
   {
     id: 'single',
     quantity: 1,
-    price: 59,
-    description: 'ספר אחד'
+    price: 69,
+    description: 'ספר אחד',
+    paymentLink: 'https://pay.grow.link/60567760653c25001044711e6bcd57fe-MTYyMDU2NA'
   },
   {
     id: 'double',
     quantity: 2,
-    price: 106,
-    pricePerUnit: 53,
+    price: 124,
+    pricePerUnit: 62,
     discount: 10,
-    description: 'שני ספרים'
+    description: 'שני ספרים',
+    paymentLink: 'https://pay.grow.link/4b9c04456a9a7b7e2a7bd474fbdaf3f3-MTYyMDc1OQ'
   },
   {
     id: 'triple',
     quantity: 3,
-    price: 150,
-    pricePerUnit: 50,
+    price: 175,
+    pricePerUnit: 58,
     discount: 15,
-    description: 'שלושה ספרים'
+    description: 'שלושה ספרים',
+    paymentLink: 'https://pay.grow.link/d82445cd2b91b15349d1a18e060ac8af-MTYyMDc4MA'
   }
 ];
 
 export function StandardPurchase() {
   const [selectedBundle, setSelectedBundle] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const navigate = useNavigate();
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (!selectedBundle) return;
+    
+    const bundle = bundles.find(b => b.id === selectedBundle);
+    if (!bundle) return;
+
     setIsProcessing(true);
-    // Navigate to placeholder payment page
-    navigate(`/payment/${selectedBundle}`);
+    
+    try {
+      // Show loading state for at least 1 second
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      window.open(bundle.paymentLink, '_blank', 'noopener,noreferrer');
+    } finally {
+      // Reset processing state after a short delay
+      setTimeout(() => setIsProcessing(false), 500);
+    }
   };
+
+  if (isProcessing) {
+    return (
+      <div className="h-full bg-white rounded-2xl shadow-lg flex items-center justify-center p-8">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-purple-900 mb-2">מעבר לדף התשלום</h3>
+          <p className="text-purple-700">אנא המתן...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full bg-white rounded-2xl shadow-lg flex flex-col">
@@ -65,12 +89,13 @@ export function StandardPurchase() {
                   </div>
                   {bundle.pricePerUnit && (
                     <div className="text-sm md:text-base text-purple-700">
-                      ₪{bundle.pricePerUnit} / יח׳
+                      ₪{bundle.pricePerUnit} / יח׳ (כולל מע״מ)
                     </div>
                   )}
                 </div>
                 <div className="text-left">
                   <div className="text-xl md:text-2xl font-bold text-purple-600">₪{bundle.price}</div>
+                  <div className="text-sm text-purple-700">כולל מע״מ</div>
                   {bundle.discount && (
                     <div className="text-sm md:text-base text-green-600 font-medium">
                       {bundle.discount}% הנחה
@@ -92,20 +117,11 @@ export function StandardPurchase() {
 
         <button
           onClick={handlePurchase}
-          disabled={!selectedBundle || isProcessing}
+          disabled={!selectedBundle}
           className="w-full h-[50px] flex items-center justify-center gap-2 bg-purple-600 text-white rounded-xl text-lg md:text-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50"
         >
-          {isProcessing ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>מעבד...</span>
-            </>
-          ) : (
-            <>
-              <span>לרכישה מאובטחת</span>
-              <ShoppingCart className="w-5 h-5" />
-            </>
-          )}
+          <span>לרכישה מאובטחת</span>
+          <ShoppingCart className="w-5 h-5" />
         </button>
       </div>
     </div>
