@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 import { Feature } from './Feature';
+import { PaymentPopup } from './PaymentPopup';
 
 const bundles = [
   {
@@ -32,51 +33,28 @@ const bundles = [
 
 export function StandardPurchase() {
   const [selectedBundle, setSelectedBundle] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
 
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
     if (!selectedBundle) return;
-    
-    const bundle = bundles.find(b => b.id === selectedBundle);
-    if (!bundle) return;
-
-    setIsProcessing(true);
-    
-    try {
-      // Show loading state for at least 1 second
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      window.open(bundle.paymentLink, '_blank', 'noopener,noreferrer');
-    } finally {
-      // Reset processing state after a short delay
-      setTimeout(() => setIsProcessing(false), 500);
-    }
+    setShowPaymentPopup(true);
   };
 
-  if (isProcessing) {
-    return (
-      <div className="h-full bg-white rounded-2xl shadow-lg flex items-center justify-center p-8">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-purple-900 mb-2">מעבר לדף התשלום</h3>
-          <p className="text-purple-700">אנא המתן...</p>
-        </div>
-      </div>
-    );
-  }
+  const selectedBundleData = selectedBundle ? bundles.find(b => b.id === selectedBundle) : null;
 
   return (
     <div className="h-full bg-white rounded-2xl shadow-lg flex flex-col">
-      <div className="p-4 md:p-6 space-y-3">
-        <h3 className="text-xl md:text-2xl font-bold text-purple-900 text-center mb-2">
+      <div className="p-4 md:p-6 flex flex-col gap-3">
+        <h3 className="text-lg md:text-2xl font-bold text-purple-900 text-center">
           רכישה רגילה
         </h3>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {bundles.map((bundle) => (
             <button
               key={bundle.id}
               onClick={() => setSelectedBundle(bundle.id)}
-              className={`w-full p-3 md:p-4 rounded-xl border-2 transition-all text-right ${
+              className={`w-full p-3 rounded-xl border-2 transition-all text-right ${
                 selectedBundle === bundle.id 
                   ? 'border-purple-600 bg-purple-50' 
                   : 'border-purple-100 hover:border-purple-200'
@@ -84,20 +62,20 @@ export function StandardPurchase() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-lg md:text-xl font-bold text-purple-900">
+                  <div className="text-base md:text-xl font-bold text-purple-900">
                     {bundle.description}
                   </div>
                   {bundle.pricePerUnit && (
-                    <div className="text-sm md:text-base text-purple-700">
+                    <div className="text-sm md:text-lg text-purple-700">
                       ₪{bundle.pricePerUnit} / יח׳ (כולל מע״מ)
                     </div>
                   )}
                 </div>
                 <div className="text-left">
-                  <div className="text-xl md:text-2xl font-bold text-purple-600">₪{bundle.price}</div>
-                  <div className="text-sm text-purple-700">כולל מע״מ</div>
+                  <div className="text-lg md:text-2xl font-bold text-purple-600">₪{bundle.price}</div>
+                  <div className="text-sm md:text-base text-purple-700">כולל מע״מ</div>
                   {bundle.discount && (
-                    <div className="text-sm md:text-base text-green-600 font-medium">
+                    <div className="text-sm md:text-lg text-green-600 font-medium">
                       {bundle.discount}% הנחה
                     </div>
                   )}
@@ -107,7 +85,7 @@ export function StandardPurchase() {
           ))}
         </div>
 
-        <div className="space-y-2 md:space-y-2">
+        <div className="flex flex-col gap-1.5 mb-2">
           <Feature text="כריכה קשה יוקרתית" />
           <Feature text="חוברת צביעה דיגיטלית במתנה" />
           <Feature text="חוברת פעילויות במתנה" />
@@ -115,15 +93,28 @@ export function StandardPurchase() {
           <Feature text="משלוח חינם" />
         </div>
 
-        <button
-          onClick={handlePurchase}
-          disabled={!selectedBundle}
-          className="w-full h-[50px] flex items-center justify-center gap-2 bg-purple-600 text-white rounded-xl text-lg md:text-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50"
-        >
-          <span>לרכישה מאובטחת</span>
-          <ShoppingCart className="w-5 h-5" />
-        </button>
+        <div className="sticky bottom-4 md:relative md:bottom-0 z-10 mt-auto">
+          <button
+            onClick={handlePurchase}
+            disabled={!selectedBundle}
+            className="w-full h-[50px] flex items-center justify-center gap-2 bg-purple-600 text-white rounded-xl text-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-lg md:shadow-none"
+          >
+            <span>לרכישה מאובטחת</span>
+            <ShoppingCart className="w-5 h-5" />
+          </button>
+        </div>
       </div>
+
+      {showPaymentPopup && selectedBundleData && (
+        <PaymentPopup
+          bundle={{
+            quantity: selectedBundleData.quantity,
+            price: selectedBundleData.price
+          }}
+          paymentLink={selectedBundleData.paymentLink}
+          onClose={() => setShowPaymentPopup(false)}
+        />
+      )}
     </div>
   );
 }
