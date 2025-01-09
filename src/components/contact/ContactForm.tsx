@@ -1,21 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Loader2, X } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 interface ContactFormProps {
   onClose: () => void;
 }
 
+interface FormData {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+}
+
+const INITIAL_FORM_DATA: FormData = {
+  name: '',
+  phone: '',
+  email: '',
+  message: ''
+};
+
 export function ContactForm({ onClose }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setSuccess(true);
-    setTimeout(onClose, 2000);
+    setError(null);
+
+    try {
+      await emailjs.send(
+        'service_9wsoaaq', // Replace with your EmailJS service ID
+        'template_gdisvzc', // Replace with your EmailJS template ID
+        {
+          to_email: 'anatrozenstein@gmail.com',
+          from_name: formData.name,
+          from_email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+        },
+        'L8zqpaXzrfbSe3YOn' // Replace with your EmailJS public key
+      );
+
+      setSuccess(true);
+      setTimeout(onClose, 2000);
+    } catch (err) {
+      setError('אירעה שגיאה בשליחת הטופס. אנא נסו שוב מאוחר יותר.');
+      console.error('EmailJS error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleClose = (e: React.MouseEvent) => {
@@ -53,6 +96,9 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 </label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 bg-purple-800/50 border border-purple-600 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                 />
@@ -64,6 +110,9 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 </label>
                 <input
                   type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 bg-purple-800/50 border border-purple-600 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                 />
@@ -75,6 +124,9 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 </label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 bg-purple-800/50 border border-purple-600 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                 />
@@ -85,11 +137,20 @@ export function ContactForm({ onClose }: ContactFormProps) {
                   הודעה
                 </label>
                 <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   rows={4}
                   required
                   className="w-full px-4 py-3 bg-purple-800/50 border border-purple-600 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
                 />
               </div>
+
+              {error && (
+                <div className="p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center">
+                  {error}
+                </div>
+              )}
 
               <button
                 type="submit"
