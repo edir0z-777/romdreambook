@@ -10,7 +10,7 @@ const socialLinks = [
         className="w-[28px] h-[28px]"
       />
     ),
-    href: 'https://wa.me/c/972776071245',
+    href: 'https://wa.me/message/LWSLVC2LQDFRN1',
     label: 'WhatsApp'
   },
   { 
