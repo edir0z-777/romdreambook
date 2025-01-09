@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Facebook, Instagram, Mail } from 'lucide-react';
+import { ContactForm } from '../contact/ContactForm';
 
 const socialLinks = [
   {
@@ -25,12 +26,15 @@ const socialLinks = [
   },
   { 
     icon: Mail, 
-    href: 'mailto:anat.dubov@gmail.com',
-    label: 'Email' 
+    href: '#',
+    label: 'Email',
+    onClick: (setShowForm: (show: boolean) => void) => () => setShowForm(true)
   }
 ];
 
 export function Footer() {
+  const [showContactForm, setShowContactForm] = useState(false);
+
   return (
     <footer className="bg-purple-900 text-white py-8" dir="rtl">
       <div className="container mx-auto px-4">
@@ -44,8 +48,9 @@ export function Footer() {
                   href={link.href}
                   className="hover:text-purple-300 transition-colors"
                   aria-label={link.label}
-                  target={link.icon !== Mail ? '_blank' : undefined}
-                  rel={link.icon !== Mail ? 'noopener noreferrer' : undefined}
+                  onClick={link.onClick ? link.onClick(setShowContactForm) : undefined}
+                  target={!link.onClick && link.href !== '#' ? '_blank' : undefined}
+                  rel={!link.onClick && link.href !== '#' ? 'noopener noreferrer' : undefined}
                 >
                   <Icon className="w-6 h-6" />
                 </a>
@@ -57,6 +62,10 @@ export function Footer() {
           </p>
         </div>
       </div>
+
+      {showContactForm && (
+        <ContactForm onClose={() => setShowContactForm(false)} />
+      )}
     </footer>
   );
 }
