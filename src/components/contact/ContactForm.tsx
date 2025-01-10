@@ -37,7 +37,7 @@ export function ContactForm({ onClose }: ContactFormProps) {
         'service_b6ms6rj', // Replace with your EmailJS service ID
         'template_gdisvzc', // Replace with your EmailJS template ID
         {
-          to_email: 'anatrozenstein@gmail.com',
+          to_email: 'eroznet@gmail.com',
           from_name: formData.name,
           from_email: formData.email,
           phone: formData.phone,
