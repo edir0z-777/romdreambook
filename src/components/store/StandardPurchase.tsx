@@ -87,8 +87,8 @@ export function StandardPurchase() {
 
         <div className="flex flex-col gap-1.5 mb-2">
           <Feature text="כריכה קשה יוקרתית" />
-          <Feature text="חוברת צביעה דיגיטלית במתנה" />
-          <Feature text="חוברת פעילויות במתנה" />
+          <Feature text="חוברת יצירה דיגיטלית במתנה" />
+          <Feature text="חוברת פעילויות דיגיטלית בעקבות הספר במתנה" />
           <Feature text="הקדשה אישית" />
           <Feature text="משלוח חינם" />
         </div>
