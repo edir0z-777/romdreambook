@@ -34,7 +34,7 @@ export function ContactForm({ onClose }: ContactFormProps) {
 
     try {
       await emailjs.send(
-        'service_9wsoaaq', // Replace with your EmailJS service ID
+        'service_b6ms6rj', // Replace with your EmailJS service ID
         'template_gdisvzc', // Replace with your EmailJS template ID
         {
           to_email: 'anatrozenstein@gmail.com',
