@@ -23,8 +23,8 @@ export function EnterprisePurchase() {
 
         <div className="space-y-3 mb-6">
           <Feature text="מחיר מיוחד לרכישה מרוכזת" />
-          <Feature text="חוברת צביעה דיגיטלית במתנה" />
-          <Feature text="חוברת פעילויות במתנה" />
+          <Feature text="חוברת יצירה דיגיטלית במתנה" />
+          <Feature text="חוברת פעילויות דיגיטלית בעקבות הספר" />
           <Feature text="הקדשה אישית" />
           <Feature text="משלוח מרוכז" />
         </div>
