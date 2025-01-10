@@ -43,7 +43,7 @@ export function ContactForm({ onClose }: ContactFormProps) {
           phone: formData.phone,
           message: formData.message,
         },
-        'L8zqpaXzrfbSe3YOn' // Replace with your EmailJS public key
+        'a2WIvgO5Vtf7WN-yJ' // Replace with your EmailJS public key
       );
 
       setSuccess(true);
