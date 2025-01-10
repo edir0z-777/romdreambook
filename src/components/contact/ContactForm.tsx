@@ -34,16 +34,16 @@ export function ContactForm({ onClose }: ContactFormProps) {
 
     try {
       await emailjs.send(
-        'service_zki7r5i', // Replace with your EmailJS service ID
-        'template_ihoi5ch', // Replace with your EmailJS template ID
+        'service_8pyy57m', // Replace with your EmailJS service ID
+        'template_6710cbp', // Replace with your EmailJS template ID
         {
-          to_email: 'eroznet@gmail.com',
+          to_email: 'anatrozenstein@gmail.com',
           from_name: formData.name,
           from_email: formData.email,
           phone: formData.phone,
           message: formData.message,
         },
-        'a2WIvgO5Vtf7WN-yJ' // Replace with your EmailJS public key
+        'YWp68V9yUkBDKAH7O' // Replace with your EmailJS public key
       );
 
       setSuccess(true);
