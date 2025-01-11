@@ -1,6 +1,7 @@
 import { About } from '../pages/About';
 import { Home } from '../pages/Home';
 import { Store } from '../pages/Store';
+import { ThankYou } from '../pages/ThankYou';
 import { PaymentPlaceholder } from '../pages/PaymentPlaceholder';
 
 export const routes = [
@@ -19,5 +20,9 @@ export const routes = [
   {
     path: '/payment/:bundle',
     component: PaymentPlaceholder
+  },
+  {
+    path: '/thank-you',
+    component: ThankYou
   }
 ];
