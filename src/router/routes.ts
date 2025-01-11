@@ -18,11 +18,11 @@ export const routes = [
     component: Store
   },
   {
-    path: '/payment/:bundle',
-    component: PaymentPlaceholder
-  },
-  {
     path: '/thank-you',
     component: ThankYou
+  },
+  {
+    path: '/payment/:bundle',
+    component: PaymentPlaceholder
   }
 ];

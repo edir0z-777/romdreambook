@@ -84,7 +84,6 @@ export function ThankYou() {
             </div>
           </div>
 
-          {/* Rest of the components remain unchanged */}
           {/* Activity Book Download Card */}
           <div className="bg-gradient-to-br from-purple-50/80 to-white rounded-2xl shadow-lg p-6 mb-6">
             <div className="flex items-center gap-3 mb-4">
