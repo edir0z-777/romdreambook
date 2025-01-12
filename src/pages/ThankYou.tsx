@@ -1,27 +1,22 @@
 import React, { useEffect } from 'react';
 import { Clock, Mail, Package, CheckCircle2, Palette, ArrowRight, Download, Gift } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export function ThankYou() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Only allow access if coming from payment (has payment_id)
-    const paymentId = searchParams.get('payment_id');
-    if (!paymentId) {
+    // Check if user came from a Grow payment link
+    const referrer = document.referrer;
+    const isFromPayment = referrer.includes('pay.grow.link');
+    
+    if (!isFromPayment) {
       navigate('/', { replace: true });
     }
-  }, [navigate, searchParams]);
-
-  // If no payment ID, don't render anything while redirecting
-  if (!searchParams.get('payment_id')) {
-    return null;
-  }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
-      {/* Rest of the component remains exactly the same */}
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Success Message */}
