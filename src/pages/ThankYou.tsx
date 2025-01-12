@@ -6,10 +6,28 @@ export function ThankYou() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // Meshulam parameters (without validation)
-  const paymentId = searchParams.get('payment_id') || '123456789';
-  const paymentStatus = searchParams.get('payment_status') || '1';
-  const paymentSum = searchParams.get('payment_sum') || '69';
+  // Get payment parameters from URL
+  const paymentId = searchParams.get('payment_id');
+  const paymentStatus = searchParams.get('payment_status');
+  const paymentSum = searchParams.get('payment_sum');
+
+  // Redirect if payment parameters are missing
+  if (!paymentId || !paymentStatus || !paymentSum) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-purple-50 p-4" dir="rtl">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-purple-900 mb-4">לא נמצאו פרטי תשלום</h1>
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors"
+          >
+            <ArrowRight className="w-5 h-5" />
+            <span>חזרה לדף הבית</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
