@@ -10,7 +10,8 @@ export function ThankYou() {
     const referrer = document.referrer;
     const isFromPayment = referrer.includes('pay.grow.link');
     
-    if (!isFromPayment) {
+    // If there's no referrer or it's not from the payment page, redirect
+    if (!referrer || !isFromPayment) {
       navigate('/', { replace: true });
     }
   }, [navigate]);
