@@ -6,13 +6,11 @@ export function ThankYou() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // Get payment parameters from URL
+  // Only check for payment ID
   const paymentId = searchParams.get('payment_id');
-  const paymentStatus = searchParams.get('payment_status');
-  const paymentSum = searchParams.get('payment_sum');
 
-  // Redirect if payment parameters are missing
-  if (!paymentId || !paymentStatus || !paymentSum) {
+  // Show error only if there's no payment ID
+  if (!paymentId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-purple-50 p-4" dir="rtl">
         <div className="text-center">
@@ -66,17 +64,7 @@ export function ThankYou() {
                 <span className="text-lg text-purple-700">סטטוס:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-lg font-bold text-green-600">
-                    {paymentStatus === '1' ? 'אושרה' : 'בתהליך'}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-lg text-purple-700">סכום:</span>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-purple-900">₪{paymentSum}</span>
-                  <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
+                  <span className="text-lg font-bold text-green-600">אושרה</span>
                 </div>
               </div>
             </div>
