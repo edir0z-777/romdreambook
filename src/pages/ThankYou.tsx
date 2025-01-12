@@ -6,12 +6,17 @@ export function ThankYou() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user came from a Grow payment link
+    // Get referrer and current URL
     const referrer = document.referrer;
-    const isFromPayment = referrer.includes('pay.grow.link');
+    const currentUrl = window.location.href;
     
-    // If there's no referrer or it's not from the payment page, redirect
-    if (!referrer || !isFromPayment) {
+    // Allow access only if coming from Grow payment or our own thank you page
+    const isFromGrow = referrer.includes('pay.grow.link');
+    const isFromOurDomain = referrer.includes(window.location.hostname);
+    const isThankYouPage = currentUrl.includes('/thank-you');
+    
+    // If not from Grow payment and not navigating within our site, redirect
+    if (!isFromGrow && !isFromOurDomain && isThankYouPage) {
       navigate('/', { replace: true });
     }
   }, [navigate]);
