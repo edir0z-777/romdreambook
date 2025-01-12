@@ -9,7 +9,7 @@ const bundles = [
     quantity: 1,
     price: 69,
     description: 'ספר אחד',
-    paymentLink: 'https://pay.grow.link/60567760653c25001044711e6bcd57fe-MTYyMDU2NA'
+    paymentLink: 'https://pay.grow.link/60567760653c25001044711e6bcd57fe-MTYyMDU2NA?source=grow'
   },
   {
     id: 'double',
@@ -18,7 +18,7 @@ const bundles = [
     pricePerUnit: 62,
     discount: 10,
     description: 'שני ספרים',
-    paymentLink: 'https://pay.grow.link/4b9c04456a9a7b7e2a7bd474fbdaf3f3-MTYyMDc1OQ'
+    paymentLink: 'https://pay.grow.link/4b9c04456a9a7b7e2a7bd474fbdaf3f3-MTYyMDc1OQ?source=grow'
   },
   {
     id: 'triple',
@@ -27,7 +27,7 @@ const bundles = [
     pricePerUnit: 58,
     discount: 15,
     description: 'שלושה ספרים',
-    paymentLink: 'https://pay.grow.link/d82445cd2b91b15349d1a18e060ac8af-MTYyMDc4MA'
+    paymentLink: 'https://pay.grow.link/d82445cd2b91b15349d1a18e060ac8af-MTYyMDc4MA?source=grow'
   }
 ];
 
