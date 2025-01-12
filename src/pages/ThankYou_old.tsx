@@ -1,15 +1,33 @@
 import React from 'react';
-import { Clock, Mail, Package, CheckCircle2, Printer, BookOpen, Palette, ArrowRight } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Clock, Mail, Package, CheckCircle2, Printer, Share2, BookOpen, Palette, ArrowRight } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export function ThankYou() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
-  // Meshulam parameters (without validation)
-  const paymentId = searchParams.get('payment_id') || '123456789';
-  const paymentStatus = searchParams.get('payment_status') || '1';
-  const paymentSum = searchParams.get('payment_sum') || '69';
+  // Meshulam returns these specific parameters
+  const paymentId = searchParams.get('payment_id');
+  const paymentStatus = searchParams.get('payment_status');
+  const paymentSum = searchParams.get('payment_sum');
+
+  // Redirect if payment is not valid
+  if (!paymentId || paymentStatus !== '1') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-purple-50 p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-purple-900 mb-4">לא נמצאו פרטי תשלום</h1>
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors"
+          >
+            <ArrowRight className="w-5 h-5" />
+            <span>חזרה לדף הבית</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
@@ -48,19 +66,19 @@ export function ThankYou() {
                 <span className="text-lg text-purple-700">סטטוס:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-lg font-bold text-green-600">
-                    {paymentStatus === '1' ? 'אושרה' : 'בתהליך'}
-                  </span>
+                  <span className="text-lg font-bold text-green-600">אושרה</span>
                 </div>
               </div>
               
-              <div className="flex justify-between items-center">
-                <span className="text-lg text-purple-700">סכום:</span>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-purple-900">₪{paymentSum}</span>
-                  <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
+              {paymentSum && (
+                <div className="flex justify-between items-center">
+                  <span className="text-lg text-purple-700">סכום:</span>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-purple-900">₪{paymentSum}</span>
+                    <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
