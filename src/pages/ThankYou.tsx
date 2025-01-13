@@ -9,27 +9,11 @@ export function ThankYou() {
   useEffect(() => {
     // Get referrer and current URL
     const referrer = document.referrer;
-    const currentUrl = window.location.href;
+    const isFromPayment = referrer.startsWith('https://pay.grow.link/');
     
-    // List of allowed domains
-    const allowedDomains = [
-      'pay.grow.link',
-      'meshulam.co.il',
-      'sdk.meshulam.co.il',
-      'cdn.meshulam.co.il',
-      'pps.creditguard.co.il',
-      'challenges.cloudflare.com'
-    ];
-    
-    // Check if referrer is from any of the allowed domains
-    const isFromAllowedDomain = allowedDomains.some(domain => referrer.includes(domain));
-    const isFromOurDomain = referrer.includes(window.location.hostname);
-    const isThankYouPage = currentUrl.includes('/thank-you');
-    
-    // If not from allowed domains and not navigating within our site, redirect
-    if (!isFromAllowedDomain && !isFromOurDomain && isThankYouPage) {
+    // If not from payment site, redirect to home
+    if (!isFromPayment) {
       navigate('/', { replace: true });
-      return;
     }
   }, [navigate]);
 
