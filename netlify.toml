@@ -7,9 +7,22 @@
   function = "webhook"
 
 [[edge_functions]]
-  path = "/transaction"
+  path = "/api/transaction"
   function = "transaction"
 
+# Specific redirect for transaction page
+[[redirects]]
+  from = "/api/transaction"
+  to = "/.netlify/functions/transaction"
+  status = 200
+
+# Specific redirect for webhook
+[[redirects]]
+  from = "/api/webhook"
+  to = "/.netlify/functions/webhook"
+  status = 200
+
+# Catch-all redirect for SPA - should be last
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -17,7 +30,7 @@
   force = false
 
 [headers]
-  for = "/transaction"
+  for = "/api/transaction"
     [headers.values]
     Cache-Control = "no-store, must-revalidate"
     X-Robots-Tag = "noindex"
