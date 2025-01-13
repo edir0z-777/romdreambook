@@ -1,25 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clock, Mail, Package, CheckCircle2, Printer, BookOpen, Palette, ArrowRight } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export function ThankYou() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [transactionDetails, setTransactionDetails] = useState<any>(null);
   
   useEffect(() => {
-    // Get referrer and transaction ID
+    // Get referrer and payment ID
     const referrer = document.referrer;
-    const transactionId = searchParams.get('transaction_id');
+    const paymentId = searchParams.get('payment_id');
     const isFromPayment = referrer.startsWith('https://pay.grow.link/');
     
-    // If not from payment site and no transaction ID, redirect to home
-    if (!isFromPayment && !transactionId) {
+    // If not from payment site and no payment ID, redirect to home
+    if (!isFromPayment && !paymentId) {
       navigate('/', { replace: true });
+      return;
+    }
+
+    // If we have a payment ID, fetch the transaction details
+    if (paymentId) {
+      fetch(`/api/transaction?id=${paymentId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setTransactionDetails(data.transaction);
+          }
+        })
+        .catch(console.error);
     }
   }, [navigate, searchParams]);
 
-  // Get transaction ID from URL params
-  const transactionId = searchParams.get('transaction_id');
+  // Get payment ID from URL params
+  const paymentId = searchParams.get('payment_id');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
@@ -52,12 +66,27 @@ export function ThankYou() {
               <div className="flex justify-between items-center pb-4 border-b border-purple-100">
                 <span className="text-lg text-purple-700">מספר הזמנה:</span>
                 <span className="text-lg font-bold text-purple-900 font-mono">
-                  {transactionId || 'לא זמין'}
+                  {paymentId || 'לא זמין'}
                 </span>
               </div>
               
-              {/* Rest of the component remains the same */}
-              {/* ... */}
+              <div className="flex justify-between items-center pb-4 border-b border-purple-100">
+                <span className="text-lg text-purple-700">סטטוס:</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-lg font-bold text-green-600">אושרה</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-lg text-purple-700">סכום:</span>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-purple-900">
+                    ₪{transactionDetails?.amount || searchParams.get('payment_sum') || '0'}
+                  </span>
+                  <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
+                </div>
+              </div>
             </div>
           </div>
 

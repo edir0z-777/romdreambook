@@ -13,19 +13,19 @@ interface PaymentPopupProps {
 
 export function PaymentPopup({ bundle, paymentLink, onClose }: PaymentPopupProps) {
   useEffect(() => {
-    // Extract transaction ID from payment link
-    const transactionId = paymentLink.split('/').pop()?.split('-')[1];
+    // Extract payment ID from payment link
+    const paymentId = paymentLink.split('/').pop()?.split('-')[0];
     
-    // Construct the return URL with transaction ID
+    // Construct the return URL with payment ID
     const returnUrl = new URL('/thank-you', window.location.origin);
-    if (transactionId) {
-      returnUrl.searchParams.set('transaction_id', transactionId);
+    if (paymentId) {
+      returnUrl.searchParams.set('payment_id', paymentId);
+      returnUrl.searchParams.set('payment_sum', bundle.price.toString());
     }
     
-    // Add return URL and source to payment link
+    // Add return URL to payment link
     const finalPaymentUrl = new URL(paymentLink);
     finalPaymentUrl.searchParams.set('success_url', returnUrl.toString());
-    finalPaymentUrl.searchParams.set('source', 'grow');
     
     // Redirect to payment page after a short delay
     const timer = setTimeout(() => {
@@ -33,7 +33,7 @@ export function PaymentPopup({ bundle, paymentLink, onClose }: PaymentPopupProps
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [paymentLink]);
+  }, [paymentLink, bundle.price]);
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
