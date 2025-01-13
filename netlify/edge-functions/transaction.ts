@@ -6,7 +6,7 @@ function generateTransactionHtml(transaction: any) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>פרטי עסקה</title>
+    <title>פרטי עסקה #${transaction.id}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -65,11 +65,20 @@ function generateTransactionHtml(transaction: any) {
             font-size: 0.9em;
             margin-bottom: 20px;
         }
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>פרטי עסקה</h1>
+        <h1>פרטי עסקה #${transaction.id}</h1>
         <div style="text-align: center">
             <div class="success-badge">העסקה הושלמה בהצלחה</div>
         </div>
@@ -93,6 +102,20 @@ function generateTransactionHtml(transaction: any) {
                     <div class="label">סוג תשלום</div>
                     <div class="value">${transaction.payment.type}</div>
                 </div>
+                ${transaction.payment.details.paymentsNum > 1 ? `
+                <div class="field">
+                    <div class="label">מספר תשלומים</div>
+                    <div class="value">${transaction.payment.details.paymentsNum}</div>
+                </div>
+                <div class="field">
+                    <div class="label">תשלום ראשון</div>
+                    <div class="value">₪${transaction.payment.details.firstPayment}</div>
+                </div>
+                <div class="field">
+                    <div class="label">תשלום חודשי</div>
+                    <div class="value">₪${transaction.payment.details.periodicalPayment}</div>
+                </div>
+                ` : ''}
             </div>
         </div>
 
@@ -147,6 +170,12 @@ function generateTransactionHtml(transaction: any) {
                     <div class="label">אסמכתא</div>
                     <div class="value">${transaction.meta.reference}</div>
                 </div>
+                ${transaction.meta.description ? `
+                <div class="field">
+                    <div class="label">תיאור</div>
+                    <div class="value">${transaction.meta.description}</div>
+                </div>
+                ` : ''}
             </div>
         </div>
     </div>
@@ -163,8 +192,8 @@ export default async function handler(request: Request, context: Context) {
   }
 
   try {
-    // Fetch transaction details from webhook response
-    const response = await fetch(`${url.origin}/api/webhook/${transactionId}`);
+    // Fetch transaction from webhook endpoint
+    const response = await fetch(`${url.origin}/api/webhook?id=${transactionId}`);
     const data = await response.json();
 
     if (!data.success) {
@@ -177,11 +206,14 @@ export default async function handler(request: Request, context: Context) {
     return new Response(html, {
       status: 200,
       headers: {
-        'Content-Type': 'text/html;charset=UTF-8'
+        'Content-Type': 'text/html;charset=UTF-8',
+        'Cache-Control': 'no-store, must-revalidate',
+        'X-Robots-Tag': 'noindex'
       }
     });
 
   } catch (error) {
+    console.error('Error loading transaction:', error);
     return new Response('Error loading transaction details', { status: 500 });
   }
 }
