@@ -1,26 +1,20 @@
 import React, { useEffect } from 'react';
 import { Clock, Mail, Package, CheckCircle2, Printer, BookOpen, Palette, ArrowRight } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export function ThankYou() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   
   useEffect(() => {
-    // Get referrer and current URL
+    // Get referrer
     const referrer = document.referrer;
-    const isFromPayment = referrer.startsWith('https://pay.grow.link/');
+    const isFromGrow = referrer.startsWith('https://pay.grow.link/');
     
-    // If not from payment site, redirect to home
-    if (!isFromPayment) {
+    // If not from Grow payment, redirect to home
+    if (!isFromGrow) {
       navigate('/', { replace: true });
     }
   }, [navigate]);
-
-  // Meshulam parameters (without validation)
-  const paymentId = searchParams.get('payment_id') || '123456789';
-  const paymentStatus = searchParams.get('payment_status') || '1';
-  const paymentSum = searchParams.get('payment_sum') || '69';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
@@ -51,25 +45,10 @@ export function ThankYou() {
             
             <div className="grid gap-6">
               <div className="flex justify-between items-center pb-4 border-b border-purple-100">
-                <span className="text-lg text-purple-700">מספר הזמנה:</span>
-                <span className="text-lg font-bold text-purple-900 font-mono">{paymentId}</span>
-              </div>
-              
-              <div className="flex justify-between items-center pb-4 border-b border-purple-100">
                 <span className="text-lg text-purple-700">סטטוס:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-lg font-bold text-green-600">
-                    {paymentStatus === '1' ? 'אושרה' : 'בתהליך'}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-lg text-purple-700">סכום:</span>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-purple-900">₪{paymentSum}</span>
-                  <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
+                  <span className="text-lg font-bold text-green-600">אושרה</span>
                 </div>
               </div>
             </div>
