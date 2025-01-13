@@ -1,212 +1,91 @@
 import { Context } from '@netlify/edge-functions';
 
-function generateTransactionHtml(transaction: any) {
-  return `<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>פרטי עסקה #${transaction.id}</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #4338ca;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f8ff;
-            border-radius: 8px;
-        }
-        .section h2 {
-            color: #4338ca;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        .field {
-            margin-bottom: 10px;
-        }
-        .label {
-            font-weight: bold;
-            color: #666;
-            margin-bottom: 4px;
-        }
-        .value {
-            color: #333;
-            font-size: 1.1em;
-        }
-        .success-badge {
-            display: inline-block;
-            background: #22c55e;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-        @media print {
-            body {
-                background: white;
-            }
-            .container {
-                box-shadow: none;
-                padding: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>פרטי עסקה #${transaction.id}</h1>
-        <div style="text-align: center">
-            <div class="success-badge">העסקה הושלמה בהצלחה</div>
-        </div>
-
-        <div class="section">
-            <h2>פרטי תשלום</h2>
-            <div class="grid">
-                <div class="field">
-                    <div class="label">מספר עסקה</div>
-                    <div class="value">${transaction.id}</div>
-                </div>
-                <div class="field">
-                    <div class="label">סכום</div>
-                    <div class="value">₪${transaction.amount}</div>
-                </div>
-                <div class="field">
-                    <div class="label">תאריך</div>
-                    <div class="value">${transaction.date}</div>
-                </div>
-                <div class="field">
-                    <div class="label">סוג תשלום</div>
-                    <div class="value">${transaction.payment.type}</div>
-                </div>
-                ${transaction.payment.details.paymentsNum > 1 ? `
-                <div class="field">
-                    <div class="label">מספר תשלומים</div>
-                    <div class="value">${transaction.payment.details.paymentsNum}</div>
-                </div>
-                <div class="field">
-                    <div class="label">תשלום ראשון</div>
-                    <div class="value">₪${transaction.payment.details.firstPayment}</div>
-                </div>
-                <div class="field">
-                    <div class="label">תשלום חודשי</div>
-                    <div class="value">₪${transaction.payment.details.periodicalPayment}</div>
-                </div>
-                ` : ''}
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>פרטי לקוח</h2>
-            <div class="grid">
-                <div class="field">
-                    <div class="label">שם מלא</div>
-                    <div class="value">${transaction.customer.name}</div>
-                </div>
-                <div class="field">
-                    <div class="label">טלפון</div>
-                    <div class="value">${transaction.customer.phone}</div>
-                </div>
-                <div class="field">
-                    <div class="label">דוא״ל</div>
-                    <div class="value">${transaction.customer.email}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>פרטי כרטיס</h2>
-            <div class="grid">
-                <div class="field">
-                    <div class="label">סוג כרטיס</div>
-                    <div class="value">${transaction.payment.card.brand}</div>
-                </div>
-                <div class="field">
-                    <div class="label">4 ספרות אחרונות</div>
-                    <div class="value">${transaction.payment.card.suffix}</div>
-                </div>
-                <div class="field">
-                    <div class="label">סוג</div>
-                    <div class="value">${transaction.payment.card.type}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>פרטים נוספים</h2>
-            <div class="grid">
-                <div class="field">
-                    <div class="label">מקור התשלום</div>
-                    <div class="value">${transaction.meta.source}</div>
-                </div>
-                <div class="field">
-                    <div class="label">שם העמוד</div>
-                    <div class="value">${transaction.meta.pageTitle}</div>
-                </div>
-                <div class="field">
-                    <div class="label">אסמכתא</div>
-                    <div class="value">${transaction.meta.reference}</div>
-                </div>
-                ${transaction.meta.description ? `
-                <div class="field">
-                    <div class="label">תיאור</div>
-                    <div class="value">${transaction.meta.description}</div>
-                </div>
-                ` : ''}
-            </div>
-        </div>
-    </div>
-</body>
-</html>`;
+interface Transaction {
+  id: string;
+  amount: number;
+  date: string;
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  payment: {
+    type: string;
+    card: {
+      brand: string;
+      suffix: string;
+      type: string;
+    };
+    details: {
+      paymentsNum: number;
+      firstPayment: number;
+      periodicalPayment: number;
+    };
+  };
+  meta: {
+    source: string;
+    pageTitle: string;
+    reference: string;
+    description: string;
+  };
 }
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default async function handler(request: Request, context: Context) {
-  const url = new URL(request.url);
-  const transactionId = url.searchParams.get('id');
-
-  if (!transactionId) {
-    return new Response('Transaction ID is required', { status: 400 });
-  }
-
   try {
-    // Fetch transaction from webhook endpoint
-    const response = await fetch(`${url.origin}/api/webhook?id=${transactionId}`);
-    const data = await response.json();
+    const url = new URL(request.url);
+    const transactionId = url.searchParams.get('id');
 
-    if (!data.success) {
-      throw new Error('Transaction not found');
+    if (!transactionId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Transaction ID is required'
+      }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, must-revalidate',
+          'X-Robots-Tag': 'noindex'
+        }
+      });
     }
 
-    // Generate HTML view
-    const html = generateTransactionHtml(data.transaction);
+    // Add a delay to simulate processing
+    await delay(5000); // 5 second delay
 
-    return new Response(html, {
+    // Fetch transaction from webhook endpoint
+    const response = await fetch(`${url.origin}/api/webhook?id=${transactionId}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch transaction');
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !data.transaction) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Transaction not found'
+      }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, must-revalidate',
+          'X-Robots-Tag': 'noindex'
+        }
+      });
+    }
+
+    // Return transaction data
+    return new Response(JSON.stringify({
+      success: true,
+      transaction: data.transaction
+    }), {
       status: 200,
       headers: {
-        'Content-Type': 'text/html;charset=UTF-8',
+        'Content-Type': 'application/json',
         'Cache-Control': 'no-store, must-revalidate',
         'X-Robots-Tag': 'noindex'
       }
@@ -214,6 +93,16 @@ export default async function handler(request: Request, context: Context) {
 
   } catch (error) {
     console.error('Error loading transaction:', error);
-    return new Response('Error loading transaction details', { status: 500 });
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Error loading transaction details'
+    }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate',
+        'X-Robots-Tag': 'noindex'
+      }
+    });
   }
 }
