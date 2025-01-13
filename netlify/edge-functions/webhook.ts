@@ -31,21 +31,22 @@ interface MeshulamWebhookData {
 }
 
 export default async function handler(request: Request, context: Context) {
-  // Only allow POST requests
   if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Method not allowed'
+    }), { 
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   }
 
   try {
-    // Parse the webhook data
     const data: MeshulamWebhookData = await request.json();
 
-    // Validate webhook key (you should store this in environment variables)
-    if (data.webhookKey !== process.env.MESHULAM_WEBHOOK_KEY) {
-      return new Response('Invalid webhook key', { status: 401 });
-    }
-
-    // Log the transaction (you can extend this to store in a database)
+    // Log the transaction
     console.log('Payment received:', {
       transactionCode: data.transactionCode,
       amount: data.paymentSum,
@@ -53,31 +54,48 @@ export default async function handler(request: Request, context: Context) {
         name: data.fullName,
         email: data.payerEmail,
         phone: data.payerPhone
-      },
-      payment: {
-        type: data.paymentType,
-        date: data.paymentDate,
-        card: {
-          brand: data.cardBrand,
-          suffix: data.cardSuffix,
-          type: data.cardType
-        }
       }
     });
 
-    // Send email notification (you would implement this)
-    // await sendPaymentNotification(data);
-
-    // Return success response
-    return new Response(JSON.stringify({ success: true }), {
+    // Return JSON response
+    return new Response(JSON.stringify({
+      success: true,
+      transaction: {
+        id: data.transactionCode,
+        amount: data.paymentSum,
+        date: data.paymentDate,
+        customer: {
+          name: data.fullName,
+          email: data.payerEmail,
+          phone: data.payerPhone
+        },
+        payment: {
+          type: data.paymentType,
+          card: {
+            brand: data.cardBrand,
+            suffix: data.cardSuffix,
+            type: data.cardType
+          }
+        },
+        meta: {
+          source: data.paymentSource,
+          pageTitle: data.purchasePageTitle,
+          reference: data.asmachta
+        }
+      }
+    }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json'
       }
     });
+
   } catch (error) {
     console.error('Webhook error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Error processing webhook'
+    }), { 
       status: 500,
       headers: {
         'Content-Type': 'application/json'
