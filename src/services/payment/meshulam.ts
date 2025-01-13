@@ -1,41 +1,29 @@
 import { PaymentDetails, PaymentProvider } from './types';
-import { meshulamConfig } from './config';
+
+// Direct payment links from Grow
+const PAYMENT_LINKS = {
+  single: 'https://pay.grow.link/60567760653c25001044711e6bcd57fe-MTYyMDU2NA',
+  double: 'https://pay.grow.link/4b9c04456a9a7b7e2a7bd474fbdaf3f3-MTYyMDc1OQ',
+  triple: 'https://pay.grow.link/d82445cd2b91b15349d1a18e060ac8af-MTYyMDc4MA'
+};
 
 export const meshulamProvider: PaymentProvider = {
   createPayment: async (details: PaymentDetails) => {
-    if (!meshulamConfig.apiKey || !meshulamConfig.pageCode) {
-      throw new Error('Meshulam configuration is missing');
+    // Determine which payment link to use based on amount
+    let paymentLink = PAYMENT_LINKS.single;
+    
+    if (details.amount === 124) {
+      paymentLink = PAYMENT_LINKS.double;
+    } else if (details.amount === 175) {
+      paymentLink = PAYMENT_LINKS.triple;
     }
 
-    try {
-      const response = await fetch(`${meshulamConfig.baseUrl}/create-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${meshulamConfig.apiKey}`
-        },
-        body: JSON.stringify({
-          pageCode: meshulamConfig.pageCode,
-          amount: details.amount,
-          description: details.description,
-          successUrl: details.successUrl,
-          cancelUrl: details.cancelUrl,
-          currency: 'ILS'
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Payment creation failed');
-      }
-
-      const data = await response.json();
-      return data.paymentUrl;
-    } catch (error) {
-      console.error('Meshulam payment error:', error);
-      throw new Error('אירעה שגיאה ביצירת התשלום. אנא נסו שוב מאוחר יותר.');
-    }
+    // Add source parameter
+    const finalUrl = new URL(paymentLink);
+    finalUrl.searchParams.set('source', 'grow');
+    
+    return finalUrl.toString();
   },
 
-  isAvailable: () => Boolean(meshulamConfig.apiKey && meshulamConfig.pageCode)
+  isAvailable: () => true // Always available since we're using direct links
 };

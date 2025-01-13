@@ -13,9 +13,20 @@ interface PaymentPopupProps {
 
 export function PaymentPopup({ bundle, paymentLink, onClose }: PaymentPopupProps) {
   useEffect(() => {
-    // Redirect to payment link in the same window after a short delay
+    // Extract transaction ID from payment link
+    const transactionId = paymentLink.split('-').pop()?.split('?')[0];
+    
+    // Construct the return URL with transaction ID
+    const returnUrl = new URL('/thank-you', window.location.origin);
+    returnUrl.searchParams.set('transaction_id', transactionId || '');
+    
+    // Add return URL to payment link
+    const finalPaymentUrl = new URL(paymentLink);
+    finalPaymentUrl.searchParams.set('success_url', returnUrl.toString());
+    
+    // Redirect to payment page after a short delay
     const timer = setTimeout(() => {
-      window.location.href = paymentLink;
+      window.location.href = finalPaymentUrl.toString();
     }, 1500);
 
     return () => clearTimeout(timer);
