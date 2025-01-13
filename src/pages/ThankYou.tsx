@@ -1,20 +1,9 @@
-import React, { useEffect } from 'react';
-import { Clock, Mail, Package, CheckCircle2, Printer, BookOpen, Palette, ArrowRight } from 'lucide-react';
+import React from 'react';
+import { Clock, Mail, Package, CheckCircle2, BookOpen, Palette, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function ThankYou() {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Get referrer
-    const referrer = document.referrer;
-    const isFromGrow = referrer.startsWith('https://pay.grow.link/');
-    
-    // If not from Grow payment, redirect to home
-    if (!isFromGrow) {
-      navigate('/', { replace: true });
-    }
-  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
@@ -71,8 +60,8 @@ export function ThankYou() {
                       <Mail className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-purple-900 mb-1">אישור במייל</h3>
-                      <p className="text-purple-700">אישור רכישה ופרטי ההזמנה נשלחו לכתובת המייל שלך</p>
+                      <h3 className="text-xl font-bold text-purple-900 mb-2">אישור במייל</h3>
+                      <p className="text-lg text-purple-700">אישור רכישה ופרטי ההזמנה נשלחו לכתובת המייל שלך</p>
                     </div>
                   </div>
 
@@ -81,8 +70,8 @@ export function ThankYou() {
                       <Package className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-purple-900 mb-1">הכנת המשלוח</h3>
-                      <p className="text-purple-700">המשלוח יצא תוך 1-3 ימי עסקים</p>
+                      <h3 className="text-xl font-bold text-purple-900 mb-2">הכנת המשלוח</h3>
+                      <p className="text-lg text-purple-700">המשלוח יצא תוך 1-3 ימי עסקים</p>
                     </div>
                   </div>
 
@@ -91,8 +80,8 @@ export function ThankYou() {
                       <Clock className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-purple-900 mb-1">זמן אספקה</h3>
-                      <p className="text-purple-700">זמן אספקה משוער: 3-5 ימי עסקים</p>
+                      <h3 className="text-xl font-bold text-purple-900 mb-2">זמן אספקה</h3>
+                      <p className="text-lg text-purple-700">זמן אספקה משוער: 3-5 ימי עסקים</p>
                     </div>
                   </div>
                 </div>
@@ -103,60 +92,52 @@ export function ThankYou() {
           {/* Digital Content Card */}
           <div className="bg-gradient-to-br from-purple-50/80 to-white rounded-2xl shadow-lg p-8 mb-8">
             <div className="flex items-center gap-3 mb-8">
-              <BookOpen className="w-7 h-7 text-purple-600" />
-              <h2 className="text-2xl font-bold text-purple-900">התוספות הדיגיטליות שלך</h2>
+              <BookOpen className="w-8 h-8 text-purple-600" />
+              <h2 className="text-3xl font-bold text-purple-900">התוספות הדיגיטליות שלך</h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white/80 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                  <BookOpen className="w-6 h-6 text-purple-600" />
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                  <BookOpen className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="text-lg font-bold text-purple-900 mb-2">חוברת פעילויות</h3>
-                <p className="text-purple-700 mb-4">פעילויות מעשירות בעקבות הספר</p>
+                <h3 className="text-xl font-bold text-purple-900 mb-2">חוברת פעילויות</h3>
+                <p className="text-lg text-purple-700 mb-6">פעילויות מעשירות ומהנות בעקבות הספר, מותאמות במיוחד לילדים</p>
                 <a
                   href="/downloads/workbook.pdf"
                   download
-                  className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-bold"
+                  className="inline-flex items-center gap-3 text-purple-600 hover:text-purple-700 font-bold text-lg group"
                 >
-                  <span>להורדה</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span className="border-b-2 border-purple-200 group-hover:border-purple-500 transition-colors">להורדת החוברת</span>
+                  <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>
 
-              <div className="bg-white/80 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                  <Palette className="w-6 h-6 text-purple-600" />
+              <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                  <Palette className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="text-lg font-bold text-purple-900 mb-2">חוברת צביעה</h3>
-                <p className="text-purple-700 mb-4">דפי צביעה מתוך הספר</p>
+                <h3 className="text-xl font-bold text-purple-900 mb-2">חוברת צביעה</h3>
+                <p className="text-lg text-purple-700 mb-6">דפי צביעה מקסימים מתוך הספר לפעילות יצירתית ומהנה</p>
                 <a
                   href="/downloads/activity-book.pdf"
                   download
-                  className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-bold"
+                  className="inline-flex items-center gap-3 text-purple-600 hover:text-purple-700 font-bold text-lg group"
                 >
-                  <span>להורדה</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span className="border-b-2 border-purple-200 group-hover:border-purple-500 transition-colors">להורדת החוברת</span>
+                  <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <button
-              onClick={() => window.print()}
-              className="flex items-center justify-center gap-2 bg-purple-100 text-purple-900 py-4 px-8 rounded-xl text-lg font-bold hover:bg-purple-200 transition-colors"
-            >
-              <Printer className="w-5 h-5" />
-              <span>הדפסת אישור</span>
-            </button>
-
+          {/* Back to Home Button */}
+          <div className="text-center">
             <button
               onClick={() => navigate('/')}
-              className="flex items-center justify-center gap-2 bg-purple-600 text-white py-4 px-8 rounded-xl text-lg font-bold hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-purple-600 text-white py-4 px-8 rounded-xl text-xl font-bold hover:bg-purple-700 transition-all hover:scale-105 transform"
             >
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-6 h-6" />
               <span>חזרה לדף הבית</span>
             </button>
           </div>
