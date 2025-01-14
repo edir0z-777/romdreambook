@@ -1,37 +1,40 @@
 import { Context } from '@netlify/edge-functions';
 
-// Helper function to parse nested form data
-function parseNestedFormData(formData: URLSearchParams): Record<string, any> {
-  const result: Record<string, any> = {};
-
-  for (const [key, value] of formData.entries()) {
-    // Handle array notation like productData[0][name]
-    const matches = key.match(/^([^\[]+)(?:\[(\d+)\])?\[([^\]]+)\]$/);
-    
-    if (matches) {
-      const [, arrayName, index, field] = matches;
-      if (!result[arrayName]) {
-        result[arrayName] = [];
-      }
-      const idx = Number(index);
-      if (!result[arrayName][idx]) {
-        result[arrayName][idx] = {};
-      }
-      result[arrayName][idx][field] = value;
-    } else {
-      // Regular fields
-      result[key] = value;
-    }
-  }
-
-  // Clean up arrays (remove empty indices)
-  for (const key in result) {
-    if (Array.isArray(result[key])) {
-      result[key] = result[key].filter(Boolean);
-    }
-  }
-
-  return result;
+interface MeshulamWebhookData {
+  err: string;
+  status: string;
+  data: {
+    asmachta: string;
+    cardSuffix: string;
+    cardType: string;
+    cardTypeCode: string;
+    cardBrand: string;
+    cardBrandCode: string;
+    cardExp: string;
+    firstPaymentSum: string;
+    periodicalPaymentSum: string;
+    status: string;
+    statusCode: string;
+    transactionTypeId: string;
+    paymentType: string;
+    sum: string;
+    paymentsNum: string;
+    allPaymentsNum: string;
+    paymentDate: string;
+    description: string;
+    fullName: string;
+    payerPhone: string;
+    payerEmail: string;
+    transactionId: string;
+    transactionToken: string;
+    paymentLinkProcessId: string;
+    paymentLinkProcessToken: string;
+    invoice_license_number: string;
+    invoice_name: string;
+    address: string;
+    processId: string;
+    processToken: string;
+  };
 }
 
 // In-memory store for transactions
@@ -90,37 +93,22 @@ export default async function handler(request: Request, context: Context) {
 
       // Parse URL-encoded form data
       const formData = new URLSearchParams(rawBody);
-      const data = parseNestedFormData(formData);
+      const data: Record<string, string> = {};
       
-      // Log parsed data
-      console.log('Parsed webhook data:', JSON.stringify(data, null, 2));
+      // Convert FormData to object and log each field
+      for (const [key, value] of formData.entries()) {
+        data[key] = value;
+        console.log(`Form field ${key}:`, value);
+      }
 
       // Generate a unique transaction ID if not provided
-      const transactionId = crypto.randomUUID();
+      const transactionId = data.transactionId || crypto.randomUUID();
       
-      // Extract product details
-      const products = data.productData?.map((product: any) => ({
-        name: product.name,
-        quantity: Number(product.quantity),
-        price: Number(product.price)
-      })) || [];
-
-      // Calculate total amount from products
-      const totalAmount = products.reduce((sum: number, product: any) => {
-        return sum + (product.price * product.quantity);
-      }, 0);
-
-      // Extract custom fields
-      const customFields = data.dynamicFields?.reduce((acc: Record<string, string>, field: any) => {
-        acc[field.label] = field.field_value;
-        return acc;
-      }, {}) || {};
-
       // Store transaction in memory with normalized structure
       const transaction = {
         id: transactionId,
-        amount: totalAmount,
-        date: new Date().toISOString(),
+        amount: Number(data.sum || 0),
+        date: data.paymentDate || new Date().toISOString(),
         customer: {
           name: data.fullName || '',
           email: data.payerEmail || '',
@@ -140,11 +128,9 @@ export default async function handler(request: Request, context: Context) {
             periodicalPayment: Number(data.periodicalPaymentSum || 0)
           }
         },
-        products,
-        customFields,
         meta: {
           reference: data.asmachta || '',
-          status: 'אושרה',
+          status: data.status || 'אושרה',
           processId: data.processId || ''
         }
       };
