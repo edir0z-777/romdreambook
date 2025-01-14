@@ -107,54 +107,66 @@ export default async function handler(request: Request, context: Context) {
   // Handle POST requests for new transactions
   if (request.method === 'POST') {
     try {
-      const webhookData: MeshulamWebhookData = await request.json();
-      const data = webhookData.data;
+      // Parse URL-encoded form data
+      const formData = await request.formData();
+      const data = Object.fromEntries(formData);
 
-      // Store transaction in memory with normalized structure
-      const transaction = {
-        id: data.transactionId,
-        amount: Number(data.sum),
-        date: data.paymentDate,
-        customer: {
-          name: data.fullName,
-          email: data.payerEmail,
-          phone: data.payerPhone,
-          address: data.address
-        },
-        payment: {
-          type: data.paymentType,
-          card: {
-            brand: data.cardBrand,
-            suffix: data.cardSuffix,
-            type: data.cardType
-          },
-          details: {
-            paymentsNum: Number(data.paymentsNum),
-            firstPayment: Number(data.firstPaymentSum),
-            periodicalPayment: Number(data.periodicalPaymentSum)
-          }
-        },
-        products: data.productData.map(product => ({
-          name: product.name,
-          quantity: Number(product.quantity),
-          price: Number(product.price)
-        })),
-        shipping: {
-          type: data.shipping.type,
-          amount: Number(data.shipping.amount)
-        },
-        customFields: data.dynamicFields.reduce((acc, field) => ({
-          ...acc,
-          [field.label]: field.field_value
-        }), {}),
-        meta: {
-          reference: data.asmachta,
-          status: data.status,
-          processId: data.processId
+      // Convert the string data to our expected format
+      const webhookData = {
+        err: data.err || '',
+        status: data.status || '',
+        data: {
+          asmachta: data.asmachta || '',
+          cardSuffix: data.cardSuffix || '',
+          cardType: data.cardType || '',
+          cardBrand: data.cardBrand || '',
+          status: data.status || 'אושרה',
+          sum: data.sum || '0',
+          paymentsNum: data.paymentsNum || '1',
+          firstPaymentSum: data.firstPaymentSum || '0',
+          periodicalPaymentSum: data.periodicalPaymentSum || '0',
+          paymentDate: data.paymentDate || new Date().toISOString(),
+          fullName: data.fullName || '',
+          payerPhone: data.payerPhone || '',
+          payerEmail: data.payerEmail || '',
+          transactionId: data.transactionId || crypto.randomUUID(),
+          address: data.address || '',
+          processId: data.processId || ''
         }
       };
 
-      transactionStore.set(data.transactionId, transaction);
+      // Store transaction in memory with normalized structure
+      const transaction = {
+        id: webhookData.data.transactionId,
+        amount: Number(webhookData.data.sum),
+        date: webhookData.data.paymentDate,
+        customer: {
+          name: webhookData.data.fullName,
+          email: webhookData.data.payerEmail,
+          phone: webhookData.data.payerPhone,
+          address: webhookData.data.address
+        },
+        payment: {
+          type: 'credit_card',
+          card: {
+            brand: webhookData.data.cardBrand,
+            suffix: webhookData.data.cardSuffix,
+            type: webhookData.data.cardType
+          },
+          details: {
+            paymentsNum: Number(webhookData.data.paymentsNum),
+            firstPayment: Number(webhookData.data.firstPaymentSum),
+            periodicalPayment: Number(webhookData.data.periodicalPaymentSum)
+          }
+        },
+        meta: {
+          reference: webhookData.data.asmachta,
+          status: webhookData.data.status,
+          processId: webhookData.data.processId
+        }
+      };
+
+      transactionStore.set(webhookData.data.transactionId, transaction);
 
       return new Response(JSON.stringify({
         success: true,
