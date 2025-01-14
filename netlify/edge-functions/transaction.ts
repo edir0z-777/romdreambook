@@ -8,6 +8,7 @@ interface Transaction {
     name: string;
     email: string;
     phone: string;
+    address: string;
   };
   payment: {
     type: string;
@@ -22,11 +23,20 @@ interface Transaction {
       periodicalPayment: number;
     };
   };
+  products: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  shipping: {
+    type: string;
+    amount: number;
+  };
+  customFields: Record<string, string>;
   meta: {
-    source: string;
-    pageTitle: string;
     reference: string;
-    description: string;
+    status: string;
+    processId: string;
   };
 }
 
@@ -53,7 +63,7 @@ export default async function handler(request: Request, context: Context) {
     }
 
     // Add a delay to simulate processing
-    await delay(5000); // 5 second delay
+    await delay(2000);
 
     // Fetch transaction from webhook endpoint
     const response = await fetch(`${url.origin}/api/webhook?id=${transactionId}`);
@@ -78,10 +88,12 @@ export default async function handler(request: Request, context: Context) {
       });
     }
 
-    // Return transaction data
+    // Validate transaction data structure
+    const transaction = data.transaction as Transaction;
+
     return new Response(JSON.stringify({
       success: true,
-      transaction: data.transaction
+      transaction
     }), {
       status: 200,
       headers: {

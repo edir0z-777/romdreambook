@@ -1,32 +1,59 @@
 import { Context } from '@netlify/edge-functions';
 
 interface MeshulamWebhookData {
-  webhookKey: string;
-  transactionCode: string;
-  transactionType: string;
-  paymentSum: number;
-  paymentsNum: number;
-  allPaymentNum: number;
-  firstPaymentSum: number;
-  periodicalPaymentSum: number;
-  paymentType: string;
-  paymentDate: string;
-  asmachta: string;
-  paymentDesc: string;
-  fullName: string;
-  payerPhone: string;
-  payerEmail: string;
-  cardSuffix: string;
-  cardBrand: string;
-  cardType: string;
-  paymentSource: string;
-  purchasePageKey: string;
-  purchasePageTitle: string;
-  amount: number;
-  purchaseCustomField: {
-    field1: string;
-    field2: string;
-    field3: string;
+  err: string;
+  status: string;
+  data: {
+    asmachta: string;
+    cardSuffix: string;
+    cardType: string;
+    cardTypeCode: string;
+    cardBrand: string;
+    cardBrandCode: string;
+    cardExp: string;
+    firstPaymentSum: string;
+    periodicalPaymentSum: string;
+    status: string;
+    statusCode: string;
+    transactionTypeId: string;
+    paymentType: string;
+    sum: string;
+    paymentsNum: string;
+    allPaymentsNum: string;
+    paymentDate: string;
+    description: string;
+    fullName: string;
+    payerPhone: string;
+    payerEmail: string;
+    transactionId: string;
+    transactionToken: string;
+    paymentLinkProcessId: string;
+    paymentLinkProcessToken: string;
+    invoice_license_number: string;
+    invoice_name: string;
+    address: string;
+    productData: Array<{
+      product_id: string;
+      name: string;
+      catalog_number: string;
+      vat: string;
+      quantity: string;
+      price: string;
+      price_mark: string;
+    }>;
+    shipping: {
+      type: string;
+      amount: string;
+    };
+    dynamicFields: Array<{
+      key: string;
+      label: string;
+      option_label: string;
+      option_key: string;
+      field_value: string;
+    }>;
+    processId: string;
+    processToken: string;
   };
 }
 
@@ -68,30 +95,54 @@ export default async function handler(request: Request, context: Context) {
   // Handle POST requests for new transactions
   if (request.method === 'POST') {
     try {
-      const data: MeshulamWebhookData = await request.json();
+      const webhookData: MeshulamWebhookData = await request.json();
+      const data = webhookData.data;
 
-      // Store transaction in memory
+      // Store transaction in memory with normalized structure
       const transaction = {
-        id: data.transactionCode,
-        amount: data.paymentSum,
+        id: data.transactionId,
+        amount: Number(data.sum),
         date: data.paymentDate,
-        customer_name: data.fullName,
-        customer_email: data.payerEmail,
-        customer_phone: data.payerPhone,
-        payment_type: data.paymentType,
-        card_brand: data.cardBrand,
-        card_suffix: data.cardSuffix,
-        card_type: data.cardType,
-        payments_num: data.paymentsNum,
-        first_payment: data.firstPaymentSum,
-        periodical_payment: data.periodicalPaymentSum,
-        source: data.paymentSource,
-        page_title: data.purchasePageTitle,
-        reference: data.asmachta,
-        description: data.paymentDesc
+        customer: {
+          name: data.fullName,
+          email: data.payerEmail,
+          phone: data.payerPhone,
+          address: data.address
+        },
+        payment: {
+          type: data.paymentType,
+          card: {
+            brand: data.cardBrand,
+            suffix: data.cardSuffix,
+            type: data.cardType
+          },
+          details: {
+            paymentsNum: Number(data.paymentsNum),
+            firstPayment: Number(data.firstPaymentSum),
+            periodicalPayment: Number(data.periodicalPaymentSum)
+          }
+        },
+        products: data.productData.map(product => ({
+          name: product.name,
+          quantity: Number(product.quantity),
+          price: Number(product.price)
+        })),
+        shipping: {
+          type: data.shipping.type,
+          amount: Number(data.shipping.amount)
+        },
+        customFields: data.dynamicFields.reduce((acc, field) => ({
+          ...acc,
+          [field.label]: field.field_value
+        }), {}),
+        meta: {
+          reference: data.asmachta,
+          status: data.status,
+          processId: data.processId
+        }
       };
 
-      transactionStore.set(data.transactionCode, transaction);
+      transactionStore.set(data.transactionId, transaction);
 
       return new Response(JSON.stringify({
         success: true,

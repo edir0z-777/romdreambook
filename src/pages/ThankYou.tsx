@@ -2,38 +2,121 @@ import React, { useEffect, useState } from 'react';
 import { Clock, Mail, Package, CheckCircle2, Printer, BookOpen, Palette, ArrowRight } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+interface Transaction {
+  id: string;
+  amount: number;
+  date: string;
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  payment: {
+    type: string;
+    card: {
+      brand: string;
+      suffix: string;
+      type: string;
+    };
+    details: {
+      paymentsNum: number;
+      firstPayment: number;
+      periodicalPayment: number;
+    };
+  };
+  products: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  shipping: {
+    type: string;
+    amount: number;
+  };
+  customFields: Record<string, string>;
+  meta: {
+    reference: string;
+    status: string;
+    processId: string;
+  };
+}
+
 export function ThankYou() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [transactionDetails, setTransactionDetails] = useState<any>(null);
-  
-  useEffect(() => {
-    // Get referrer and payment ID
-    const referrer = document.referrer;
-    const paymentId = searchParams.get('payment_id');
-    const isFromPayment = referrer.startsWith('https://pay.grow.link/');
-    
-    // If not from payment site and no payment ID, redirect to home
-    if (!isFromPayment && !paymentId) {
-      navigate('/', { replace: true });
-      return;
-    }
+  const [transactionDetails, setTransactionDetails] = useState<Transaction | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    // If we have a payment ID, fetch the transaction details
-    if (paymentId) {
-      fetch(`/api/transaction?id=${paymentId}`)
-        .then(res => res.json())
-        .then(data => {
+  useEffect(() => {
+    const validateAndFetchTransaction = async () => {
+      try {
+        // Get referrer and payment ID
+        const referrer = document.referrer;
+        const paymentId = searchParams.get('payment_id');
+        const isFromPayment = referrer.startsWith('https://pay.grow.link/');
+
+        // If not from payment site and no payment ID, redirect to home
+        if (!isFromPayment && !paymentId) {
+          navigate('/', { replace: true });
+          return;
+        }
+
+        // If we have a payment ID, fetch the transaction details
+        if (paymentId) {
+          const response = await fetch(`/api/transaction?id=${paymentId}`);
+          const data = await response.json();
+
           if (data.success) {
             setTransactionDetails(data.transaction);
+          } else {
+            setError('לא ניתן למצוא את פרטי העסקה');
           }
-        })
-        .catch(console.error);
-    }
+        }
+      } catch (err) {
+        setError('אירעה שגיאה בטעינת פרטי העסקה');
+        console.error('Error fetching transaction:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    validateAndFetchTransaction();
   }, [navigate, searchParams]);
 
-  // Get payment ID from URL params
-  const paymentId = searchParams.get('payment_id');
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-lg text-purple-900">טוען את פרטי העסקה...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center p-4" dir="rtl">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-purple-900 mb-4">{error}</h2>
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center justify-center gap-2 bg-purple-600 text-white py-3 px-6 rounded-xl text-lg font-bold hover:bg-purple-700 transition-colors"
+          >
+            <ArrowRight className="w-5 h-5" />
+            <span>חזרה לדף הבית</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20" dir="rtl">
@@ -66,7 +149,7 @@ export function ThankYou() {
               <div className="flex justify-between items-center pb-4 border-b border-purple-100">
                 <span className="text-lg text-purple-700">מספר הזמנה:</span>
                 <span className="text-lg font-bold text-purple-900 font-mono">
-                  {paymentId || 'לא זמין'}
+                  {transactionDetails?.id || 'לא זמין'}
                 </span>
               </div>
               
@@ -74,15 +157,31 @@ export function ThankYou() {
                 <span className="text-lg text-purple-700">סטטוס:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-lg font-bold text-green-600">אושרה</span>
+                  <span className="text-lg font-bold text-green-600">
+                    {transactionDetails?.meta.status || 'אושרה'}
+                  </span>
                 </div>
               </div>
+
+              {transactionDetails?.payment.details.paymentsNum > 1 && (
+                <div className="flex justify-between items-center pb-4 border-b border-purple-100">
+                  <span className="text-lg text-purple-700">תשלומים:</span>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-purple-900">
+                      {transactionDetails.payment.details.paymentsNum} תשלומים
+                    </div>
+                    <div className="text-sm text-purple-600">
+                      ראשון: ₪{transactionDetails.payment.details.firstPayment} | חודשי: ₪{transactionDetails.payment.details.periodicalPayment}
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="flex justify-between items-center">
-                <span className="text-lg text-purple-700">סכום:</span>
+                <span className="text-lg text-purple-700">סכום כולל:</span>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-purple-900">
-                    ₪{transactionDetails?.amount || searchParams.get('payment_sum') || '0'}
+                    ₪{transactionDetails?.amount || '0'}
                   </span>
                   <div className="text-sm text-purple-600">כולל מע״מ ומשלוח</div>
                 </div>
@@ -98,7 +197,6 @@ export function ThankYou() {
             </div>
 
             <div className="space-y-8">
-              {/* Timeline */}
               <div className="relative">
                 <div className="absolute top-0 bottom-0 right-[17px] w-0.5 bg-purple-100" />
                 
