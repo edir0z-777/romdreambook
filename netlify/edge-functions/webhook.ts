@@ -4,34 +4,104 @@ import { Context } from '@netlify/edge-functions';
 function parseNestedFormData(formData: URLSearchParams): Record<string, any> {
   const result: Record<string, any> = {};
 
+  // Parse all form fields
   for (const [key, value] of formData.entries()) {
-    // Handle array notation like productData[0][name]
-    const matches = key.match(/^([^\[]+)(?:\[(\d+)\])?\[([^\]]+)\]$/);
-    
-    if (matches) {
-      const [, arrayName, index, field] = matches;
-      if (!result[arrayName]) {
-        result[arrayName] = [];
+    if (key.startsWith('data[')) {
+      // Extract nested path from data[x][y][z] format
+      const path = key.slice(5, -1).split('][');
+      let current = result;
+      
+      // Build nested structure
+      for (let i = 0; i < path.length - 1; i++) {
+        const segment = path[i];
+        if (!current.data) {
+          current.data = {};
+        }
+        if (!current.data[segment]) {
+          current.data[segment] = segment.match(/^\d+$/) ? [] : {};
+        }
+        current = current.data[segment];
       }
-      const idx = Number(index);
-      if (!result[arrayName][idx]) {
-        result[arrayName][idx] = {};
-      }
-      result[arrayName][idx][field] = value;
+      
+      // Set the final value
+      const lastKey = path[path.length - 1];
+      current[lastKey] = value;
     } else {
-      // Regular fields
+      // Handle top-level fields
       result[key] = value;
     }
   }
 
-  // Clean up arrays (remove empty indices)
-  for (const key in result) {
-    if (Array.isArray(result[key])) {
-      result[key] = result[key].filter(Boolean);
-    }
+  // Extract and normalize the data
+  const {
+    asmachta = '',
+    cardSuffix = '',
+    cardType = '',
+    cardBrand = '',
+    fullName = '',
+    payerPhone = '',
+    payerEmail = '',
+    address = '',
+    sum = '0',
+    paymentsNum = '0',
+    firstPaymentSum = '0',
+    periodicalPaymentSum = '0',
+    processId = '',
+    status = ''
+  } = result.data || {};
+
+  // Extract product data
+  const productData = [];
+  let i = 0;
+  while (result.data?.[`productData[${i}]`]) {
+    const product = result.data[`productData[${i}]`];
+    productData.push({
+      product_id: product.product_id || '',
+      name: product.name || '',
+      quantity: product.quantity || '0',
+      price: product.price || '0',
+      vat: product.vat || '0'
+    });
+    i++;
   }
 
-  return result;
+  // Extract dynamic fields
+  const dynamicFields = [];
+  i = 0;
+  while (result.data?.[`dynamicFields[${i}]`]) {
+    const field = result.data[`dynamicFields[${i}]`];
+    dynamicFields.push({
+      key: field.key || '',
+      label: field.label || '',
+      option_label: field.option_label || '',
+      option_key: field.option_key || '',
+      field_value: field.field_value || ''
+    });
+    i++;
+  }
+
+  return {
+    err: result.err || '',
+    status: result.status || '',
+    data: {
+      asmachta,
+      cardSuffix,
+      cardType,
+      cardBrand,
+      fullName,
+      payerPhone,
+      payerEmail,
+      address,
+      sum: Number(sum),
+      paymentsNum: Number(paymentsNum),
+      firstPaymentSum: Number(firstPaymentSum),
+      periodicalPaymentSum: Number(periodicalPaymentSum),
+      processId,
+      status,
+      productData,
+      dynamicFields
+    }
+  };
 }
 
 // In-memory store for transactions
@@ -90,62 +160,57 @@ export default async function handler(request: Request, context: Context) {
 
       // Parse URL-encoded form data
       const formData = new URLSearchParams(rawBody);
-      const data = parseNestedFormData(formData);
+      const webhookData = parseNestedFormData(formData);
       
       // Log parsed data
-      console.log('Parsed webhook data:', JSON.stringify(data, null, 2));
+      console.log('Parsed webhook data:', JSON.stringify(webhookData, null, 2));
 
-      // Generate a unique transaction ID if not provided
+      // Generate a unique transaction ID
       const transactionId = crypto.randomUUID();
       
       // Extract product details
-      const products = data.productData?.map((product: any) => ({
+      const products = webhookData.data.productData.map((product: any) => ({
         name: product.name,
         quantity: Number(product.quantity),
         price: Number(product.price)
-      })) || [];
-
-      // Calculate total amount from products
-      const totalAmount = products.reduce((sum: number, product: any) => {
-        return sum + (product.price * product.quantity);
-      }, 0);
+      }));
 
       // Extract custom fields
-      const customFields = data.dynamicFields?.reduce((acc: Record<string, string>, field: any) => {
+      const customFields = webhookData.data.dynamicFields.reduce((acc: Record<string, string>, field: any) => {
         acc[field.label] = field.field_value;
         return acc;
-      }, {}) || {};
+      }, {});
 
       // Store transaction in memory with normalized structure
       const transaction = {
         id: transactionId,
-        amount: totalAmount,
+        amount: webhookData.data.sum,
         date: new Date().toISOString(),
         customer: {
-          name: data.fullName || '',
-          email: data.payerEmail || '',
-          phone: data.payerPhone || '',
-          address: data.address || ''
+          name: webhookData.data.fullName,
+          email: webhookData.data.payerEmail,
+          phone: webhookData.data.payerPhone,
+          address: webhookData.data.address
         },
         payment: {
           type: 'credit_card',
           card: {
-            brand: data.cardBrand || '',
-            suffix: data.cardSuffix || '',
-            type: data.cardType || ''
+            brand: webhookData.data.cardBrand,
+            suffix: webhookData.data.cardSuffix,
+            type: webhookData.data.cardType
           },
           details: {
-            paymentsNum: Number(data.paymentsNum || 1),
-            firstPayment: Number(data.firstPaymentSum || 0),
-            periodicalPayment: Number(data.periodicalPaymentSum || 0)
+            paymentsNum: webhookData.data.paymentsNum,
+            firstPayment: webhookData.data.firstPaymentSum,
+            periodicalPayment: webhookData.data.periodicalPaymentSum
           }
         },
         products,
         customFields,
         meta: {
-          reference: data.asmachta || '',
+          reference: webhookData.data.asmachta,
           status: 'אושרה',
-          processId: data.processId || ''
+          processId: webhookData.data.processId
         }
       };
 
