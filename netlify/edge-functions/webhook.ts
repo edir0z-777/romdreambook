@@ -1,107 +1,108 @@
 import { Context } from '@netlify/edge-functions';
 
-// Helper function to parse nested form data
-function parseNestedFormData(formData: URLSearchParams): Record<string, any> {
-  const result: Record<string, any> = {};
+interface MeshulamWebhookData {
+  err: string;
+  status: string;
+  data: {
+    asmachta: string;
+    cardSuffix: string;
+    cardType: string;
+    cardTypeCode: string;
+    cardBrand: string;
+    cardBrandCode: string;
+    cardExp: string;
+    firstPaymentSum: string;
+    periodicalPaymentSum: string;
+    status: string;
+    statusCode: string;
+    transactionTypeId: string;
+    paymentType: string;
+    sum: string;
+    paymentsNum: string;
+    allPaymentsNum: string;
+    paymentDate: string;
+    description: string;
+    fullName: string;
+    payerPhone: string;
+    payerEmail: string;
+    transactionId: string;
+    transactionToken: string;
+    paymentLinkProcessId: string;
+    paymentLinkProcessToken: string;
+    invoice_license_number: string;
+    invoice_name: string;
+    address: string;
+    processId: string;
+    processToken: string;
+    productData: Array<{
+      product_id: string;
+      name: string;
+      catalog_number: string;
+      vat: string;
+      quantity: string;
+      price: string;
+      price_mark: string;
+    }>;
+    dynamicFields: Array<{
+      key: string;
+      label: string;
+      option_label: string;
+      option_key: string;
+      field_value: string;
+    }>;
+  };
+}
 
-  // Parse all form fields
+// Helper function to parse form data into nested structure
+function parseFormData(formData: URLSearchParams): MeshulamWebhookData {
+  const result: any = {
+    err: formData.get('err') || '',
+    status: formData.get('status') || '',
+    data: {}
+  };
+
+  // Create a map to store arrays
+  const arrays: Record<string, any[]> = {
+    productData: [],
+    dynamicFields: []
+  };
+
+  // Process all form fields
   for (const [key, value] of formData.entries()) {
     if (key.startsWith('data[')) {
-      // Extract nested path from data[x][y][z] format
-      const path = key.slice(5, -1).split('][');
-      let current = result;
-      
-      // Build nested structure
-      for (let i = 0; i < path.length - 1; i++) {
-        const segment = path[i];
-        if (!current.data) {
-          current.data = {};
+      const match = key.match(/data\[([^\]]+)\](?:\[(\d+)\])?\[([^\]]+)\]/);
+      if (match) {
+        const [, section, index, field] = match;
+        
+        if (index !== undefined) {
+          // Handle array fields (productData and dynamicFields)
+          if (!arrays[section]) {
+            arrays[section] = [];
+          }
+          const idx = parseInt(index);
+          if (!arrays[section][idx]) {
+            arrays[section][idx] = {};
+          }
+          arrays[section][idx][field] = value;
+        } else {
+          // Handle regular fields
+          result.data[section] = value;
         }
-        if (!current.data[segment]) {
-          current.data[segment] = segment.match(/^\d+$/) ? [] : {};
+      } else {
+        // Handle simple data fields
+        const simpleMatch = key.match(/data\[([^\]]+)\]/);
+        if (simpleMatch) {
+          result.data[simpleMatch[1]] = value;
         }
-        current = current.data[segment];
       }
-      
-      // Set the final value
-      const lastKey = path[path.length - 1];
-      current[lastKey] = value;
-    } else {
-      // Handle top-level fields
-      result[key] = value;
     }
   }
 
-  // Extract and normalize the data
-  const {
-    asmachta = '',
-    cardSuffix = '',
-    cardType = '',
-    cardBrand = '',
-    fullName = '',
-    payerPhone = '',
-    payerEmail = '',
-    address = '',
-    sum = '0',
-    paymentsNum = '0',
-    firstPaymentSum = '0',
-    periodicalPaymentSum = '0',
-    processId = '',
-    status = ''
-  } = result.data || {};
+  // Add arrays to result
+  result.data.productData = arrays.productData;
+  result.data.dynamicFields = arrays.dynamicFields;
 
-  // Extract product data
-  const productData = [];
-  let i = 0;
-  while (result.data?.[`productData[${i}]`]) {
-    const product = result.data[`productData[${i}]`];
-    productData.push({
-      product_id: product.product_id || '',
-      name: product.name || '',
-      quantity: product.quantity || '0',
-      price: product.price || '0',
-      vat: product.vat || '0'
-    });
-    i++;
-  }
-
-  // Extract dynamic fields
-  const dynamicFields = [];
-  i = 0;
-  while (result.data?.[`dynamicFields[${i}]`]) {
-    const field = result.data[`dynamicFields[${i}]`];
-    dynamicFields.push({
-      key: field.key || '',
-      label: field.label || '',
-      option_label: field.option_label || '',
-      option_key: field.option_key || '',
-      field_value: field.field_value || ''
-    });
-    i++;
-  }
-
-  return {
-    err: result.err || '',
-    status: result.status || '',
-    data: {
-      asmachta,
-      cardSuffix,
-      cardType,
-      cardBrand,
-      fullName,
-      payerPhone,
-      payerEmail,
-      address,
-      sum: Number(sum),
-      paymentsNum: Number(paymentsNum),
-      firstPaymentSum: Number(firstPaymentSum),
-      periodicalPaymentSum: Number(periodicalPaymentSum),
-      processId,
-      status,
-      productData,
-      dynamicFields
-    }
-  };
+  return result as MeshulamWebhookData;
 }
 
 // In-memory store for transactions
@@ -160,31 +161,18 @@ export default async function handler(request: Request, context: Context) {
 
       // Parse URL-encoded form data
       const formData = new URLSearchParams(rawBody);
-      const webhookData = parseNestedFormData(formData);
+      const webhookData = parseFormData(formData);
       
       // Log parsed data
       console.log('Parsed webhook data:', JSON.stringify(webhookData, null, 2));
 
       // Generate a unique transaction ID
       const transactionId = crypto.randomUUID();
-      
-      // Extract product details
-      const products = webhookData.data.productData.map((product: any) => ({
-        name: product.name,
-        quantity: Number(product.quantity),
-        price: Number(product.price)
-      }));
-
-      // Extract custom fields
-      const customFields = webhookData.data.dynamicFields.reduce((acc: Record<string, string>, field: any) => {
-        acc[field.label] = field.field_value;
-        return acc;
-      }, {});
 
       // Store transaction in memory with normalized structure
       const transaction = {
         id: transactionId,
-        amount: webhookData.data.sum,
+        amount: Number(webhookData.data.sum),
         date: new Date().toISOString(),
         customer: {
           name: webhookData.data.fullName,
@@ -200,16 +188,23 @@ export default async function handler(request: Request, context: Context) {
             type: webhookData.data.cardType
           },
           details: {
-            paymentsNum: webhookData.data.paymentsNum,
-            firstPayment: webhookData.data.firstPaymentSum,
-            periodicalPayment: webhookData.data.periodicalPaymentSum
+            paymentsNum: Number(webhookData.data.paymentsNum),
+            firstPayment: Number(webhookData.data.firstPaymentSum),
+            periodicalPayment: Number(webhookData.data.periodicalPaymentSum)
           }
         },
-        products,
-        customFields,
+        products: webhookData.data.productData.map(product => ({
+          name: product.name,
+          quantity: Number(product.quantity),
+          price: Number(product.price)
+        })),
+        customFields: webhookData.data.dynamicFields.reduce((acc, field) => {
+          acc[field.label] = field.field_value;
+          return acc;
+        }, {} as Record<string, string>),
         meta: {
           reference: webhookData.data.asmachta,
-          status: 'אושרה',
+          status: webhookData.data.status || 'אושרה',
           processId: webhookData.data.processId
         }
       };
