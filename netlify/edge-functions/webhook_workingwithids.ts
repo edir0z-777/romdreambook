@@ -32,6 +32,26 @@ interface MeshulamWebhookData {
     invoice_license_number: string;
     invoice_name: string;
     address: string;
+    productData: Array<{
+      product_id: string;
+      name: string;
+      catalog_number: string;
+      vat: string;
+      quantity: string;
+      price: string;
+      price_mark: string;
+    }>;
+    shipping: {
+      type: string;
+      amount: string;
+    };
+    dynamicFields: Array<{
+      key: string;
+      label: string;
+      option_label: string;
+      option_key: string;
+      field_value: string;
+    }>;
     processId: string;
     processToken: string;
   };
@@ -87,58 +107,66 @@ export default async function handler(request: Request, context: Context) {
   // Handle POST requests for new transactions
   if (request.method === 'POST') {
     try {
-      // Get the raw body first
-      const rawBody = await request.text();
-      console.log('Raw webhook body:', rawBody);
-
       // Parse URL-encoded form data
-      const formData = new URLSearchParams(rawBody);
-      const data: Record<string, string> = {};
-      
-      // Convert FormData to object and log each field
-      for (const [key, value] of formData.entries()) {
-        data[key] = value;
-        console.log(`Form field ${key}:`, value);
-      }
+      const formData = await request.formData();
+      const data = Object.fromEntries(formData);
 
-      // Generate a unique transaction ID if not provided
-      const transactionId = data.transactionId || crypto.randomUUID();
-      
-      // Store transaction in memory with normalized structure
-      const transaction = {
-        id: transactionId,
-        amount: Number(data.sum || 0),
-        date: data.paymentDate || new Date().toISOString(),
-        customer: {
-          name: data.fullName || '',
-          email: data.payerEmail || '',
-          phone: data.payerPhone || '',
-          address: data.address || ''
-        },
-        payment: {
-          type: 'credit_card',
-          card: {
-            brand: data.cardBrand || '',
-            suffix: data.cardSuffix || '',
-            type: data.cardType || ''
-          },
-          details: {
-            paymentsNum: Number(data.paymentsNum || 1),
-            firstPayment: Number(data.firstPaymentSum || 0),
-            periodicalPayment: Number(data.periodicalPaymentSum || 0)
-          }
-        },
-        meta: {
-          reference: data.asmachta || '',
+      // Convert the string data to our expected format
+      const webhookData = {
+        err: data.err || '',
+        status: data.status || '',
+        data: {
+          asmachta: data.asmachta || '',
+          cardSuffix: data.cardSuffix || '',
+          cardType: data.cardType || '',
+          cardBrand: data.cardBrand || '',
           status: data.status || 'אושרה',
+          sum: data.sum || '0',
+          paymentsNum: data.paymentsNum || '1',
+          firstPaymentSum: data.firstPaymentSum || '0',
+          periodicalPaymentSum: data.periodicalPaymentSum || '0',
+          paymentDate: data.paymentDate || new Date().toISOString(),
+          fullName: data.fullName || '',
+          payerPhone: data.payerPhone || '',
+          payerEmail: data.payerEmail || '',
+          transactionId: data.transactionId || crypto.randomUUID(),
+          address: data.address || '',
           processId: data.processId || ''
         }
       };
 
-      // Log the final transaction object
-      console.log('Storing transaction:', JSON.stringify(transaction, null, 2));
+      // Store transaction in memory with normalized structure
+      const transaction = {
+        id: webhookData.data.transactionId,
+        amount: Number(webhookData.data.sum),
+        date: webhookData.data.paymentDate,
+        customer: {
+          name: webhookData.data.fullName,
+          email: webhookData.data.payerEmail,
+          phone: webhookData.data.payerPhone,
+          address: webhookData.data.address
+        },
+        payment: {
+          type: 'credit_card',
+          card: {
+            brand: webhookData.data.cardBrand,
+            suffix: webhookData.data.cardSuffix,
+            type: webhookData.data.cardType
+          },
+          details: {
+            paymentsNum: Number(webhookData.data.paymentsNum),
+            firstPayment: Number(webhookData.data.firstPaymentSum),
+            periodicalPayment: Number(webhookData.data.periodicalPaymentSum)
+          }
+        },
+        meta: {
+          reference: webhookData.data.asmachta,
+          status: webhookData.data.status,
+          processId: webhookData.data.processId
+        }
+      };
 
-      transactionStore.set(transactionId, transaction);
+      transactionStore.set(webhookData.data.transactionId, transaction);
 
       return new Response(JSON.stringify({
         success: true,
@@ -152,8 +180,7 @@ export default async function handler(request: Request, context: Context) {
       console.error('Webhook error:', error);
       return new Response(JSON.stringify({
         success: false,
-        error: 'Error processing webhook',
-        details: error.message
+        error: 'Error processing webhook'
       }), { 
         status: 500,
         headers: { 'Content-Type': 'application/json' }
