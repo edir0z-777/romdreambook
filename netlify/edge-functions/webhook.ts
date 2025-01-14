@@ -61,16 +61,28 @@ interface MeshulamWebhookData {
 const transactionStore = new Map<string, any>();
 
 export default async function handler(request: Request, context: Context) {
-  // Handle GET requests to fetch transaction
+  // Handle GET requests to fetch transaction(s)
   if (request.method === 'GET') {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
 
+    // If no ID is provided, return all transactions
     if (!id) {
-      return new Response('Transaction ID is required', { status: 400 });
+      const transactions = Array.from(transactionStore.values());
+      return new Response(JSON.stringify({
+        success: true,
+        transactions,
+        count: transactions.length
+      }), {
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, must-revalidate'
+        }
+      });
     }
 
-    // Get transaction from memory store
+    // Get specific transaction from memory store
     const transaction = transactionStore.get(id);
 
     if (!transaction) {
